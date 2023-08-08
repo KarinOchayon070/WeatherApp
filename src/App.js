@@ -3,36 +3,73 @@ import axios from 'axios'
 
 function App() {
 
-  const url = 'https://api.openweathermap.org/data/2.5/weather?q=Jerusalem&appid=98aeda6895903a5368aa4716a632db79';
-  
+  const [data, setData] = useState({});
+  const [location, setLocation] = useState('');
+
+  const apiKey = process.env.REACT_APP_API_KEY;
+
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}`;
+
+  const fetchWeatherData = async () => {
+    try {
+      const response = await axios.get(url);
+      setData(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const handleKeyPress = event => {
+    if (event.key === 'Enter') {
+      fetchWeatherData();
+    }
+  };
+
+  const handleInputChange = event => {
+    setLocation(event.target.value);
+  };
 
   return (
 
     <div className='app'>
 
+    <div className='search'>
+    <input
+        value={location}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyPress}
+        placeholder='Please Enter Location'
+        type='text'
+      />
+    </div>
+
     <div className='container'>
 
       <div className='top'>
         <div className='location'>
-          <p>Jerusalem</p>
+          <p>{data.name}</p>
         </div>
         <div className='temp'>
-          <h1>40°C</h1>
+          {data.main ? <h1>{data.main.temp}</h1> : null}
         </div>
         <div className='description'>
-          <p>hot</p>
+        {data.weather ? <p> {data.weather.description}</p> : null}
         </div>
       </div>
 
       <div className='bottom'>
         <div className='feels'>
-          <p>45°C</p>
+          <p className='bold'>45°C</p>
+          <p>Feels like</p>
         </div>
         <div className='humidity'>
-          <p>20%</p>
+          {data.main ? <p className='bold'>{data.main.humidity}</p> : null}
+          <p>Humidity</p>
         </div>
         <div className='wind'>
-          <p>5 MPH</p>
+          {data.wind ? <p className='bold'>{data.wind.speed}</p> :null}
+          <p>Wind Speed</p>
         </div>
 
       </div>
